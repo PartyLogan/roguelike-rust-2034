@@ -1,4 +1,3 @@
-use actions::{movement::WalkAction, Action};
 use actors::Actor;
 use console::{cell::Cell, Console};
 use raylib::prelude::*;
@@ -41,6 +40,7 @@ pub struct GameState {
     pub height: i32,
     pub root_console: Console,
     pub actors: Vec<Actor>,
+    pub current_actor: usize,
 }
 
 impl GameState {
@@ -65,6 +65,7 @@ impl GameState {
                 render: true,
             },
             actors: Vec::new(),
+            current_actor: 0,
         };
         return s;
     }
@@ -82,9 +83,26 @@ impl GameState {
     }
 
     pub fn update(&mut self) {
-        for actor in self.actors.iter_mut() {
-            let wa: WalkAction = WalkAction { x: 1, y: 0 };
-            wa.execute(actor);
+        let mut action = self.actors[self.current_actor].get_action();
+        if action.is_none() {
+            return;
         }
+
+        loop {
+            let result = action
+                .as_mut()
+                .unwrap()
+                .execute(&mut self.actors[self.current_actor]);
+
+            if result.success {
+                return;
+            }
+            if result.alternative.is_none() {
+                break;
+            }
+            action = result.alternative;
+        }
+
+        self.current_actor = (self.current_actor + 1) % self.actors.len();
     }
 }

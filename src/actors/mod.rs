@@ -3,8 +3,12 @@ use raylib::{
     texture::Texture2D,
 };
 
-use crate::util::get_glyph_coords;
+use crate::{
+    actions::{movement::WalkAction, Action},
+    util::get_glyph_coords,
+};
 
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Actor {
     pub x: i32,
     pub y: i32,
@@ -37,5 +41,9 @@ impl Actor {
             Vector2::new(x as f32, y as f32),
             self.fg,
         );
+    }
+
+    pub fn get_action(&mut self) -> Option<Box<dyn Action>> {
+        return Some(Box::new(WalkAction::new(1, 0)));
     }
 }
