@@ -34,7 +34,7 @@ impl WalkAction {
     }
 }
 impl Action for WalkAction {
-    fn execute(&self, actor: &mut Actor, level: &mut Level) -> ActionResult {
+    fn execute(&self, actor: &mut Actor, _level: &mut Level) -> ActionResult {
         actor.x += self.x as i32;
         actor.y += self.y as i32;
         ActionResult::success()

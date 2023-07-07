@@ -1,5 +1,3 @@
-use std::{ptr::null, thread, time};
-
 use actors::{Actor, ActorType};
 use console::{cell::Cell, Console};
 use level::Level;

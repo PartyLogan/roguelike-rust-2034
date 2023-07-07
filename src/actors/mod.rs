@@ -5,12 +5,8 @@ use raylib::{
 };
 
 use crate::{
-    actions::{
-        movement::{BumpAction, WalkAction},
-        Action,
-    },
+    actions::{movement::BumpAction, Action},
     console::cell::Cell,
-    level::Level,
     util::get_glyph_coords,
 };
 
