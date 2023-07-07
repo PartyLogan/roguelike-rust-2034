@@ -31,13 +31,13 @@ impl Actor {
 
         let x = self.x * cell_size;
         let y = self.y * cell_size;
-        draw_rectangle(
-            x as f32,
-            y as f32,
-            cell_size as f32,
-            cell_size as f32,
-            self.cell.bg,
-        );
+        // draw_rectangle(
+        //     x as f32,
+        //     y as f32,
+        //     cell_size as f32,
+        //     cell_size as f32,
+        //     self.cell.bg,
+        // );
 
         let texture_pos = get_glyph_coords(self.cell.glyph, cell_size as f32);
 

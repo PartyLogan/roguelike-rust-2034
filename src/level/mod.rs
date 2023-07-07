@@ -2,7 +2,8 @@ pub mod tiles;
 
 use std::cmp;
 
-use rand::Rng;
+use rand::rngs::ThreadRng;
+pub use rand::Rng;
 
 use crate::{console::cell::Cell, util::get_xy};
 
@@ -43,7 +44,7 @@ impl Level {
         x >= 0 && x < self.width && y >= 0 && y < self.height
     }
 
-    pub fn floor_room(&mut self, room: RectangularRoom) {
+    pub fn floor_room(&mut self, room: RectangularRoom, rng: &mut ThreadRng) {
         let (rx1, ry1, rx2, ry2) = room.inner();
         let minx1 = cmp::min(rx1, rx2);
         let maxx1 = cmp::max(rx1, rx2);
@@ -53,32 +54,32 @@ impl Level {
 
         for x in minx1..=maxx1 {
             for y in miny1..=maxy1 {
-                self.set_tile(x, y, Tile::make_floor());
+                self.set_tile(x, y, Tile::make_floor(rng));
             }
         }
     }
 
-    pub fn tunnel_between(&mut self, start: (i32, i32), end: (i32, i32)) {
+    pub fn tunnel_between(&mut self, start: (i32, i32), end: (i32, i32), rng: &mut ThreadRng) {
         let (x1, y1) = start;
         let (x2, y2) = end;
 
         if x2 > x1 {
             for x in x1..=x2 {
-                self.set_tile(x, y1, Tile::make_floor());
+                self.set_tile(x, y1, Tile::make_floor(rng));
             }
         } else {
             for x in x2..=x1 {
-                self.set_tile(x, y1, Tile::make_floor());
+                self.set_tile(x, y1, Tile::make_floor(rng));
             }
         }
 
         if y2 > y1 {
             for y in y1..=y2 {
-                self.set_tile(x2, y, Tile::make_floor());
+                self.set_tile(x2, y, Tile::make_floor(rng));
             }
         } else {
             for y in y2..=y1 {
-                self.set_tile(x2, y, Tile::make_floor());
+                self.set_tile(x2, y, Tile::make_floor(rng));
             }
         }
     }
@@ -116,7 +117,7 @@ impl Level {
                 continue;
             }
 
-            self.floor_room(new_room);
+            self.floor_room(new_room, &mut rng);
 
             if rooms.is_empty() {
                 // Player co-ords here
@@ -127,11 +128,11 @@ impl Level {
                 let (prev_x, prev_y) = rooms[rooms.len() - 1].center();
 
                 if rng.gen_range(0..2) == 1 {
-                    self.tunnel_between((prev_x, new_y), (new_x, new_y));
-                    self.tunnel_between((prev_x, prev_y), (prev_x, new_y));
+                    self.tunnel_between((prev_x, new_y), (new_x, new_y), &mut rng);
+                    self.tunnel_between((prev_x, prev_y), (prev_x, new_y), &mut rng);
                 } else {
-                    self.tunnel_between((prev_x, prev_y), (new_x, prev_y));
-                    self.tunnel_between((new_x, prev_y), (new_x, new_y));
+                    self.tunnel_between((prev_x, prev_y), (new_x, prev_y), &mut rng);
+                    self.tunnel_between((new_x, prev_y), (new_x, new_y), &mut rng);
                 }
             }
 

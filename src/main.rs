@@ -3,7 +3,8 @@ use macroquad::prelude::*;
 
 use actors::{Actor, ActorType};
 use console::{cell::Cell, Console};
-use level::Level;
+use level::{tiles::Tile, Level};
+use util::get_xy;
 
 mod actions;
 mod actors;
@@ -20,7 +21,7 @@ pub const TILE_SIZE: i32 = 16;
 async fn main() {
     request_new_screen_size(SCREEN_WIDTH as f32, SCREEN_HEIGHT as f32);
 
-    let texture = load_texture("assets/Anikki_square_16x16.png")
+    let texture = load_texture("assets/monochrome-transparent_packed.png")
         .await
         .unwrap();
     texture.set_filter(FilterMode::Nearest);
@@ -38,12 +39,10 @@ async fn main() {
         },
         render: true,
         actor_type: ActorType::Player,
-        fov: fov::FOV::new(8, SCREEN_WIDTH / TILE_SIZE, SCREEN_HEIGHT / TILE_SIZE),
+        fov: fov::FOV::new(6, SCREEN_WIDTH / TILE_SIZE, SCREEN_HEIGHT / TILE_SIZE),
     };
 
     gamestate.actors.push(player);
-
-    //player.fov.update(x, y, &gamestate.level);
 
     update_fov(
         &mut gamestate.render_fov,
@@ -88,7 +87,7 @@ impl GameState {
             level: Level::new(SCREEN_WIDTH / TILE_SIZE, SCREEN_HEIGHT / TILE_SIZE),
             actors: Vec::new(),
             current_actor: 0,
-            render_fov: fov::FOV::new(8, SCREEN_WIDTH / TILE_SIZE, SCREEN_HEIGHT / TILE_SIZE),
+            render_fov: fov::FOV::new(12, SCREEN_WIDTH / TILE_SIZE, SCREEN_HEIGHT / TILE_SIZE),
         };
 
         return s;

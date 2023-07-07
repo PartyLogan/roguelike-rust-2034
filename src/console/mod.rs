@@ -34,17 +34,33 @@ impl Console {
                 let dx = x * self.cell_size;
                 let dy = y * self.cell_size;
 
-                draw_rectangle(
-                    dx as f32,
-                    dy as f32,
-                    self.cell_size as f32,
-                    self.cell_size as f32,
-                    cell.bg,
-                );
+                // draw_rectangle(
+                //     dx as f32,
+                //     dy as f32,
+                //     self.cell_size as f32,
+                //     self.cell_size as f32,
+                //     cell.bg,
+                // );
 
                 let texture_pos = get_glyph_coords(cell.glyph, self.cell_size as f32);
-
+                let blank_pos = get_glyph_coords(' ', self.cell_size as f32);
                 if fov.visible[get_xy(x, y, self.width)] {
+                    draw_texture_ex(
+                        *texture,
+                        dx as f32,
+                        dy as f32,
+                        cell.bg,
+                        DrawTextureParams {
+                            dest_size: Some(vec2(self.cell_size as f32, self.cell_size as f32)),
+                            source: Some(Rect::new(
+                                blank_pos.x,
+                                blank_pos.y,
+                                self.cell_size as f32,
+                                self.cell_size as f32,
+                            )),
+                            ..Default::default()
+                        },
+                    );
                     draw_texture_ex(
                         *texture,
                         dx as f32,
@@ -67,6 +83,22 @@ impl Console {
                         dx as f32,
                         dy as f32,
                         DARKGRAY,
+                        DrawTextureParams {
+                            dest_size: Some(vec2(self.cell_size as f32, self.cell_size as f32)),
+                            source: Some(Rect::new(
+                                blank_pos.x,
+                                blank_pos.y,
+                                self.cell_size as f32,
+                                self.cell_size as f32,
+                            )),
+                            ..Default::default()
+                        },
+                    );
+                    draw_texture_ex(
+                        *texture,
+                        dx as f32,
+                        dy as f32,
+                        LIGHTGRAY,
                         DrawTextureParams {
                             dest_size: Some(vec2(self.cell_size as f32, self.cell_size as f32)),
                             source: Some(Rect::new(

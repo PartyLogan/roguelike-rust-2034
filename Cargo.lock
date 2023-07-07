@@ -397,7 +397,14 @@ version = "0.1.0"
 dependencies = [
  "macroquad",
  "rand",
+ "rust_math",
 ]
+
+[[package]]
+name = "rust_math"
+version = "0.3.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5f8cb0c9ad55746a4f9630e638c7809cd7eef2e754024d01b9ea5f51743134ff"
 
 [[package]]
 name = "simd-adler32"

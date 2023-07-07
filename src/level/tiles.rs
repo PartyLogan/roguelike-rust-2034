@@ -1,6 +1,6 @@
-use macroquad::prelude::*;
-
 use crate::console::cell::Cell;
+use ::rand::{rngs::ThreadRng, Rng};
+use macroquad::prelude::*;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Tile {
@@ -23,16 +23,26 @@ impl Tile {
     pub fn make_wall() -> Self {
         Tile::new(
             "Wall".to_string(),
-            Cell::new('#', BLACK, WHITE),
+            Cell::new('▲', DARKGREEN, GREEN),
             false,
             false,
         )
     }
 
-    pub fn make_floor() -> Self {
+    pub fn make_floor(rng: &mut ThreadRng) -> Self {
+        let v = rng.gen_range(0..=4);
+
+        let mut char = '.';
+        match v {
+            0 => char = '.',
+            1 => char = ',',
+            2 => char = '`',
+            3 => char = '"',
+            _ => char = '^',
+        }
         Tile::new(
             "Floor".to_string(),
-            Cell::new('.', BLACK, WHITE),
+            Cell::new(char, BROWN, LIME),
             true,
             true,
         )
