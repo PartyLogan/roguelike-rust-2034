@@ -1,7 +1,4 @@
-use raylib::{
-    prelude::{RaylibDraw, RaylibDrawHandle, Rectangle, Vector2},
-    texture::Texture2D,
-};
+use macroquad::prelude::*;
 
 use crate::{
     level::Level,
@@ -18,7 +15,7 @@ pub struct Console {
 }
 
 impl Console {
-    pub fn render(&self, d: &mut RaylibDrawHandle, texture: &Texture2D, level: &Level) {
+    pub fn render(&self, texture: &Texture2D, level: &Level) {
         if self.render != true {
             return;
         }
@@ -29,20 +26,31 @@ impl Console {
 
                 let dx = x * self.cell_size;
                 let dy = y * self.cell_size;
-                d.draw_rectangle(dx, dy, self.cell_size, self.cell_size, cell.bg);
+                draw_rectangle(
+                    dx as f32,
+                    dy as f32,
+                    self.cell_size as f32,
+                    self.cell_size as f32,
+                    cell.bg,
+                );
 
                 let texture_pos = get_glyph_coords(cell.glyph, self.cell_size as f32);
 
-                d.draw_texture_rec(
-                    texture,
-                    Rectangle::new(
-                        texture_pos.x,
-                        texture_pos.y,
-                        self.cell_size as f32,
-                        self.cell_size as f32,
-                    ),
-                    Vector2::new(dx as f32, dy as f32),
+                draw_texture_ex(
+                    *texture,
+                    dx as f32,
+                    dy as f32,
                     cell.fg,
+                    DrawTextureParams {
+                        dest_size: Some(vec2(self.cell_size as f32, self.cell_size as f32)),
+                        source: Some(Rect::new(
+                            texture_pos.x,
+                            texture_pos.y,
+                            self.cell_size as f32,
+                            self.cell_size as f32,
+                        )),
+                        ..Default::default()
+                    },
                 );
             }
         }

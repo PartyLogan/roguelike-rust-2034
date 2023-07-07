@@ -1,8 +1,8 @@
-use raylib::prelude::Color;
+use macroquad::prelude::*;
 
 use crate::console::cell::Cell;
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Tile {
     pub name: String,
     pub cell: Cell,
@@ -23,7 +23,7 @@ impl Tile {
     pub fn make_wall() -> Self {
         Tile::new(
             "Wall".to_string(),
-            Cell::new('#', Color::BLACK, Color::WHITE),
+            Cell::new('#', BLACK, WHITE),
             false,
             false,
         )
@@ -32,7 +32,7 @@ impl Tile {
     pub fn make_floor() -> Self {
         Tile::new(
             "Floor".to_string(),
-            Cell::new('.', Color::BLACK, Color::WHITE),
+            Cell::new('.', BLACK, WHITE),
             true,
             true,
         )

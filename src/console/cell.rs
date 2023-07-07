@@ -1,6 +1,6 @@
-use raylib::prelude::Color;
+use macroquad::prelude::*;
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Cell {
     pub glyph: char,
     pub bg: Color,
