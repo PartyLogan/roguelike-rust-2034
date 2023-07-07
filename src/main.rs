@@ -28,7 +28,7 @@ async fn main() {
     let mut gamestate = GameState::new(texture);
     gamestate.level.generate_basic_dungeon();
 
-    let mut player = Actor {
+    let player = Actor {
         x: gamestate.level.start_x,
         y: gamestate.level.start_y,
         cell: Cell {
@@ -41,14 +41,14 @@ async fn main() {
         fov: fov::FOV::new(8, SCREEN_WIDTH / TILE_SIZE, SCREEN_HEIGHT / TILE_SIZE),
     };
 
-    player.fov.update(player.x, player.y, &gamestate.level);
-
     gamestate.actors.push(player);
+
+    //player.fov.update(x, y, &gamestate.level);
 
     update_fov(
         &mut gamestate.render_fov,
         gamestate.level.start_x,
-        gamestate.level.start_x,
+        gamestate.level.start_y,
         &gamestate.level,
     );
 
@@ -111,6 +111,28 @@ impl GameState {
     pub fn update(&mut self) {
         let x = self.actors[self.current_actor].x;
         let y = self.actors[self.current_actor].y;
+
+        let mut action = self.actors[self.current_actor].get_action();
+        if action.is_none() {
+            return;
+        }
+        let mut new_actor: bool = false;
+        loop {
+            let result = action
+                .as_mut()
+                .unwrap()
+                .execute(&mut self.actors[self.current_actor], &mut self.level);
+
+            if result.success {
+                new_actor = true;
+                break;
+            }
+            if result.alternative.is_none() {
+                break;
+            }
+            action = result.alternative;
+        }
+
         self.actors[self.current_actor]
             .fov
             .update(x, y, &self.level);
@@ -123,27 +145,8 @@ impl GameState {
                 &self.level,
             );
         }
-
-        let mut action = self.actors[self.current_actor].get_action();
-        if action.is_none() {
-            return;
+        if new_actor {
+            self.current_actor = (self.current_actor + 1) % self.actors.len();
         }
-
-        loop {
-            let result = action
-                .as_mut()
-                .unwrap()
-                .execute(&mut self.actors[self.current_actor], &mut self.level);
-
-            if result.success {
-                return;
-            }
-            if result.alternative.is_none() {
-                break;
-            }
-            action = result.alternative;
-        }
-
-        self.current_actor = (self.current_actor + 1) % self.actors.len();
     }
 }
