@@ -1,9 +1,9 @@
-use crate::actors::Actor;
+use crate::{actors::Actor, level::Level};
 
 pub mod movement;
 
 pub trait Action {
-    fn execute(&self, actor: &mut Actor) -> ActionResult;
+    fn execute(&self, actor: &mut Actor, level: &mut Level) -> ActionResult;
 }
 
 pub struct ActionResult {
@@ -15,7 +15,7 @@ impl ActionResult {
     pub fn new(result: bool, alternative: Option<Box<dyn Action>>) -> Self {
         ActionResult {
             success: result,
-            alternative: None,
+            alternative: alternative,
         }
     }
 
