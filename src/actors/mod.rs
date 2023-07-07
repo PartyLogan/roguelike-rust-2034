@@ -1,16 +1,11 @@
-use raylib::{
-    prelude::{KeyboardKey, RaylibDraw, RaylibDrawHandle, Rectangle, Vector2},
-    texture::Texture2D,
-    RaylibHandle,
-};
+use macroquad::prelude::*;
 
 use crate::{
     actions::{movement::BumpAction, Action},
     console::cell::Cell,
+    fov::FOV,
     util::get_glyph_coords,
 };
-
-pub const DELAY_TIME: usize = 10;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum ActorType {
@@ -18,63 +13,70 @@ pub enum ActorType {
     Enemy,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Actor {
     pub x: i32,
     pub y: i32,
     pub cell: Cell,
     pub render: bool,
     pub actor_type: ActorType,
-    pub time_till_next_action: usize,
+    pub fov: FOV,
 }
 
 impl Actor {
-    pub fn render(&self, d: &mut RaylibDrawHandle, texture: &Texture2D, cell_size: i32) {
+    pub fn render(&self, texture: &Texture2D, cell_size: i32) {
         if self.render != true {
             return;
         }
 
         let x = self.x * cell_size;
         let y = self.y * cell_size;
-        d.draw_rectangle(x, y, cell_size, cell_size, self.cell.bg);
+        draw_rectangle(
+            x as f32,
+            y as f32,
+            cell_size as f32,
+            cell_size as f32,
+            self.cell.bg,
+        );
 
         let texture_pos = get_glyph_coords(self.cell.glyph, cell_size as f32);
 
-        d.draw_texture_rec(
-            texture,
-            Rectangle::new(
-                texture_pos.x,
-                texture_pos.y,
-                cell_size as f32,
-                cell_size as f32,
-            ),
-            Vector2::new(x as f32, y as f32),
+        draw_texture_ex(
+            *texture,
+            x as f32,
+            y as f32,
             self.cell.fg,
+            DrawTextureParams {
+                dest_size: Some(vec2(cell_size as f32, cell_size as f32)),
+                source: Some(Rect::new(
+                    texture_pos.x,
+                    texture_pos.y,
+                    cell_size as f32,
+                    cell_size as f32,
+                )),
+                ..Default::default()
+            },
         );
     }
 
-    pub fn get_action(&mut self, rl: &mut RaylibHandle) -> Option<Box<dyn Action>> {
+    pub fn get_action(&mut self) -> Option<Box<dyn Action>> {
         if self.actor_type == ActorType::Player {
-            let action = self.get_player_input(rl);
-            if action.is_some() {
-                self.time_till_next_action = DELAY_TIME;
-            }
-            return self.get_player_input(rl);
+            return self.get_player_input();
         }
         None
     }
 
-    pub fn get_player_input(&self, rl: &mut RaylibHandle) -> Option<Box<dyn Action>> {
-        if rl.is_key_down(KeyboardKey::KEY_UP) {
+    pub fn get_player_input(&self) -> Option<Box<dyn Action>> {
+        if is_key_pressed(KeyCode::Up) {
             return Some(Box::new(BumpAction::new(0, -1)));
         }
-        if rl.is_key_down(KeyboardKey::KEY_DOWN) {
+        if is_key_pressed(KeyCode::Down) {
             return Some(Box::new(BumpAction::new(0, 1)));
         }
-        if rl.is_key_down(KeyboardKey::KEY_LEFT) {
+        if is_key_pressed(KeyCode::Left) {
             return Some(Box::new(BumpAction::new(-1, 0)));
         }
-        if rl.is_key_down(KeyboardKey::KEY_RIGHT) {
+        if is_key_pressed(KeyCode::Right) {
             return Some(Box::new(BumpAction::new(1, 0)));
         }
 

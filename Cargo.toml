@@ -7,8 +7,12 @@ edition = "2021"
 
 [dependencies]
 rand = "0.8.5"
+macroquad = "0.3.25"
 
-[dependencies.raylib]
-version = "4.5.0"
-git = "https://github.com/litten2up/raylib-rs"
-branch = "4.5.0"
+# Enable a small amount of optimization in debug mode
+[profile.dev]
+opt-level = 1
+
+# Enable high optimizations for dependencies (incl. Bevy), but not for our code:
+[profile.dev.package."*"]
+opt-level = 3
