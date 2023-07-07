@@ -1,12 +1,19 @@
 use raylib::{
-    prelude::{Color, RaylibDraw, RaylibDrawHandle, Rectangle, Vector2},
+    prelude::{Color, KeyboardKey, RaylibDraw, RaylibDrawHandle, Rectangle, Vector2},
     texture::Texture2D,
+    RaylibHandle,
 };
 
 use crate::{
     actions::{movement::WalkAction, Action},
     util::get_glyph_coords,
 };
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum ActorType {
+    Player,
+    Enemy,
+}
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Actor {
@@ -16,6 +23,7 @@ pub struct Actor {
     pub bg: Color,
     pub fg: Color,
     pub render: bool,
+    pub actor_type: ActorType,
 }
 
 impl Actor {
@@ -43,7 +51,23 @@ impl Actor {
         );
     }
 
-    pub fn get_action(&mut self) -> Option<Box<dyn Action>> {
-        return Some(Box::new(WalkAction::new(1, 0)));
+    pub fn get_action(&mut self, pressed_key: Option<KeyboardKey>) -> Option<Box<dyn Action>> {
+        if self.actor_type == ActorType::Player {
+            return self.get_player_input(pressed_key);
+        }
+        None
+    }
+
+    pub fn get_player_input(&self, pressed_key: Option<KeyboardKey>) -> Option<Box<dyn Action>> {
+        if let Some(pressed_key) = pressed_key {
+            match pressed_key {
+                KeyboardKey::KEY_UP => return Some(Box::new(WalkAction::new(0, -1))),
+                KeyboardKey::KEY_DOWN => return Some(Box::new(WalkAction::new(0, 1))),
+                KeyboardKey::KEY_LEFT => return Some(Box::new(WalkAction::new(-1, 0))),
+                KeyboardKey::KEY_RIGHT => return Some(Box::new(WalkAction::new(1, 0))),
+                _ => return None,
+            };
+        }
+        None
     }
 }

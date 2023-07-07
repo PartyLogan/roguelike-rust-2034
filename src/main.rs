@@ -1,4 +1,4 @@
-use actors::Actor;
+use actors::{Actor, ActorType};
 use console::{cell::Cell, Console};
 use raylib::prelude::*;
 
@@ -22,15 +22,25 @@ fn main() {
         bg: Color::BLACK,
         fg: Color::YELLOW,
         render: true,
+        actor_type: ActorType::Player,
     };
 
     gamestate.actors.push(test_actor);
 
     while !rl.window_should_close() {
-        let mut d = rl.begin_drawing(&thread);
-        gamestate.update();
-        gamestate.render(&mut d);
+        update(&mut gamestate, &mut rl);
+        render(&mut gamestate, &mut rl, &thread);
     }
+}
+
+pub fn update(gamestate: &mut GameState, rl: &mut RaylibHandle) {
+    let pressed_key = rl.get_key_pressed();
+    gamestate.update(pressed_key);
+}
+
+pub fn render(gamestate: &mut GameState, rl: &mut RaylibHandle, thread: &RaylibThread) {
+    let mut d = rl.begin_drawing(&thread);
+    gamestate.render(&mut d);
 }
 
 pub struct GameState {
@@ -82,8 +92,8 @@ impl GameState {
         d.draw_fps(20, 20);
     }
 
-    pub fn update(&mut self) {
-        let mut action = self.actors[self.current_actor].get_action();
+    pub fn update(&mut self, pressed_key: Option<KeyboardKey>) {
+        let mut action = self.actors[self.current_actor].get_action(pressed_key);
         if action.is_none() {
             return;
         }
