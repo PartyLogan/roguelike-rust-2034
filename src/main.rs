@@ -1,10 +1,10 @@
 use fov::{update_fov, FOV};
 use macroquad::prelude::*;
 
+use ::rand::thread_rng;
 use actors::{Actor, ActorType};
 use console::{cell::Cell, Console};
-use level::{tiles::Tile, Level};
-use util::get_xy;
+use level::Level;
 
 mod actions;
 mod actors;
@@ -35,7 +35,7 @@ async fn main() {
         cell: Cell {
             glyph: '☻',
             bg: BLACK,
-            fg: YELLOW,
+            fg: WHITE,
         },
         render: true,
         actor_type: ActorType::Player,
@@ -73,6 +73,7 @@ pub struct GameState {
 
 impl GameState {
     pub fn new(texture: Texture2D) -> GameState {
+        let mut rng = thread_rng();
         let s = GameState {
             tilemap: texture,
             tilesize: TILE_SIZE,
@@ -84,7 +85,11 @@ impl GameState {
                 cell_size: TILE_SIZE,
                 render: true,
             },
-            level: Level::new(SCREEN_WIDTH / TILE_SIZE, SCREEN_HEIGHT / TILE_SIZE),
+            level: Level::new(
+                SCREEN_WIDTH / TILE_SIZE,
+                SCREEN_HEIGHT / TILE_SIZE,
+                &mut rng,
+            ),
             actors: Vec::new(),
             current_actor: 0,
             render_fov: fov::FOV::new(12, SCREEN_WIDTH / TILE_SIZE, SCREEN_HEIGHT / TILE_SIZE),

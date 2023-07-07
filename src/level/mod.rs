@@ -18,11 +18,11 @@ pub struct Level {
 }
 
 impl Level {
-    pub fn new(width: i32, height: i32) -> Self {
+    pub fn new(width: i32, height: i32, rng: &mut ThreadRng) -> Self {
         Level {
             width,
             height,
-            tiles: vec![Tile::make_wall(); (width * height) as usize],
+            tiles: vec![Tile::make_wall(rng); (width * height) as usize],
             start_x: 0,
             start_y: 0,
         }
@@ -92,9 +92,13 @@ impl Level {
         let mut player_x: i32 = 0;
         let mut player_y: i32 = 0;
 
-        let mut rooms: Vec<RectangularRoom> = Vec::new();
-
         let mut rng = rand::thread_rng();
+        self.tiles.clear();
+        for _i in 0..self.width * self.height {
+            self.tiles.push(Tile::make_wall(&mut rng));
+        }
+
+        let mut rooms: Vec<RectangularRoom> = Vec::new();
 
         for _r in 0..max_rooms {
             let room_width = rng.gen_range(room_min_size..=room_max_size);

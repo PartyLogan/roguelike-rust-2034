@@ -2,8 +2,8 @@ use macroquad::prelude::*;
 
 use crate::{
     fov::FOV,
-    level::Level,
-    util::{get_glyph_coords, get_xy},
+    level::{tiles::TileType, Level},
+    util::{get_tile_glyph_coords, get_xy},
 };
 
 pub mod cell;
@@ -24,6 +24,7 @@ impl Console {
         for y in 0..self.height {
             for x in 0..self.width {
                 let cell = level.get_cell(get_xy(x, y, self.width));
+                let tile = level.get_tile(get_xy(x, y, self.width));
 
                 if fov.visible[get_xy(x, y, self.width)] == false
                     && fov.seen[get_xy(x, y, self.width)] == false
@@ -34,16 +35,9 @@ impl Console {
                 let dx = x * self.cell_size;
                 let dy = y * self.cell_size;
 
-                // draw_rectangle(
-                //     dx as f32,
-                //     dy as f32,
-                //     self.cell_size as f32,
-                //     self.cell_size as f32,
-                //     cell.bg,
-                // );
+                let texture_pos = get_tile_glyph_coords(tile.tile_type, self.cell_size as f32);
+                let blank_pos = get_tile_glyph_coords(TileType::Blank, self.cell_size as f32);
 
-                let texture_pos = get_glyph_coords(cell.glyph, self.cell_size as f32);
-                let blank_pos = get_glyph_coords(' ', self.cell_size as f32);
                 if fov.visible[get_xy(x, y, self.width)] {
                     draw_texture_ex(
                         *texture,
@@ -82,7 +76,7 @@ impl Console {
                         *texture,
                         dx as f32,
                         dy as f32,
-                        DARKGRAY,
+                        BLACK,
                         DrawTextureParams {
                             dest_size: Some(vec2(self.cell_size as f32, self.cell_size as f32)),
                             source: Some(Rect::new(
@@ -98,7 +92,7 @@ impl Console {
                         *texture,
                         dx as f32,
                         dy as f32,
-                        LIGHTGRAY,
+                        DARKGRAY,
                         DrawTextureParams {
                             dest_size: Some(vec2(self.cell_size as f32, self.cell_size as f32)),
                             source: Some(Rect::new(
