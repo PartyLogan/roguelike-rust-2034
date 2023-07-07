@@ -23,6 +23,7 @@ pub struct Actor {
     pub cell: Cell,
     pub render: bool,
     pub actor_type: ActorType,
+    pub time_till_next_action: usize,
 }
 
 impl Actor {
@@ -52,22 +53,26 @@ impl Actor {
 
     pub fn get_action(&mut self, rl: &mut RaylibHandle) -> Option<Box<dyn Action>> {
         if self.actor_type == ActorType::Player {
+            let action = self.get_player_input(rl);
+            if action.is_some() {
+                self.time_till_next_action = 10;
+            }
             return self.get_player_input(rl);
         }
         None
     }
 
     pub fn get_player_input(&self, rl: &mut RaylibHandle) -> Option<Box<dyn Action>> {
-        if rl.is_key_pressed(KeyboardKey::KEY_UP) {
+        if rl.is_key_down(KeyboardKey::KEY_UP) {
             return Some(Box::new(BumpAction::new(0, -1)));
         }
-        if rl.is_key_pressed(KeyboardKey::KEY_DOWN) {
+        if rl.is_key_down(KeyboardKey::KEY_DOWN) {
             return Some(Box::new(BumpAction::new(0, 1)));
         }
-        if rl.is_key_pressed(KeyboardKey::KEY_LEFT) {
+        if rl.is_key_down(KeyboardKey::KEY_LEFT) {
             return Some(Box::new(BumpAction::new(-1, 0)));
         }
-        if rl.is_key_pressed(KeyboardKey::KEY_RIGHT) {
+        if rl.is_key_down(KeyboardKey::KEY_RIGHT) {
             return Some(Box::new(BumpAction::new(1, 0)));
         }
 

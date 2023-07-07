@@ -34,6 +34,7 @@ fn main() {
         },
         render: true,
         actor_type: ActorType::Player,
+        time_till_next_action: 0,
     };
 
     let (px, py) = gamestate.level.generate_basic_dungeon();
@@ -102,6 +103,10 @@ impl GameState {
     }
 
     pub fn update(&mut self, rl: &mut RaylibHandle) {
+        if self.actors[self.current_actor].time_till_next_action > 0 {
+            self.actors[self.current_actor].time_till_next_action -= 1;
+            return;
+        }
         let mut action = self.actors[self.current_actor].get_action(rl);
         if action.is_none() {
             return;
