@@ -10,6 +10,8 @@ use crate::{
     util::get_glyph_coords,
 };
 
+pub const DELAY_TIME: usize = 10;
+
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum ActorType {
     Player,
@@ -55,7 +57,7 @@ impl Actor {
         if self.actor_type == ActorType::Player {
             let action = self.get_player_input(rl);
             if action.is_some() {
-                self.time_till_next_action = 10;
+                self.time_till_next_action = DELAY_TIME;
             }
             return self.get_player_input(rl);
         }

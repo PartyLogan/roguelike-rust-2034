@@ -18,7 +18,7 @@ fn main() {
         .size(SCREEN_WIDTH, SCREEN_HEIGHT)
         .title("Roguelike")
         .build();
-
+    rl.set_target_fps(60);
     let texture = rl
         .load_texture(&thread, "assets/Anikki_square_16x16.png")
         .expect("Could not load texture");
