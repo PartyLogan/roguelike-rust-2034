@@ -1,3 +1,4 @@
+use fov::{update_fov, FOV};
 use macroquad::prelude::*;
 
 use actors::{Actor, ActorType};
@@ -7,6 +8,7 @@ use level::Level;
 mod actions;
 mod actors;
 mod console;
+mod fov;
 mod level;
 mod util;
 
@@ -24,9 +26,11 @@ async fn main() {
     texture.set_filter(FilterMode::Nearest);
 
     let mut gamestate = GameState::new(texture);
+    gamestate.level.generate_basic_dungeon();
+
     let mut player = Actor {
-        x: 0,
-        y: 0,
+        x: gamestate.level.start_x,
+        y: gamestate.level.start_y,
         cell: Cell {
             glyph: '☻',
             bg: BLACK,
@@ -34,29 +38,26 @@ async fn main() {
         },
         render: true,
         actor_type: ActorType::Player,
+        fov: fov::FOV::new(8, SCREEN_WIDTH / TILE_SIZE, SCREEN_HEIGHT / TILE_SIZE),
     };
 
-    let (px, py) = gamestate.level.generate_basic_dungeon();
-
-    player.x = px;
-    player.y = py;
+    player.fov.update(player.x, player.y, &gamestate.level);
 
     gamestate.actors.push(player);
 
+    update_fov(
+        &mut gamestate.render_fov,
+        gamestate.level.start_x,
+        gamestate.level.start_x,
+        &gamestate.level,
+    );
+
     loop {
-        update(&mut gamestate);
-        render(&mut gamestate);
+        gamestate.update();
+        gamestate.render();
 
         next_frame().await
     }
-}
-
-pub fn update(gamestate: &mut GameState) {
-    gamestate.update();
-}
-
-pub fn render(gamestate: &mut GameState) {
-    gamestate.render();
 }
 
 pub struct GameState {
@@ -68,6 +69,7 @@ pub struct GameState {
     pub level: Level,
     pub actors: Vec<Actor>,
     pub current_actor: usize,
+    pub render_fov: FOV,
 }
 
 impl GameState {
@@ -86,22 +88,42 @@ impl GameState {
             level: Level::new(SCREEN_WIDTH / TILE_SIZE, SCREEN_HEIGHT / TILE_SIZE),
             actors: Vec::new(),
             current_actor: 0,
+            render_fov: fov::FOV::new(8, SCREEN_WIDTH / TILE_SIZE, SCREEN_HEIGHT / TILE_SIZE),
         };
+
         return s;
     }
 
     pub fn render(&self) {
         clear_background(BLACK);
 
-        self.root_console.render(&self.tilemap, &self.level);
+        self.root_console
+            .render(&self.tilemap, &self.level, &self.render_fov);
 
         for actor in self.actors.iter() {
             actor.render(&self.tilemap, self.tilesize);
         }
-        println!("{}", get_fps());
+
+        draw_rectangle(0.0, 0.0, 50.0, 50.0, BLACK);
+        draw_text(get_fps().to_string().as_str(), 0.0, 30.0, 40.0, GREEN);
     }
 
     pub fn update(&mut self) {
+        let x = self.actors[self.current_actor].x;
+        let y = self.actors[self.current_actor].y;
+        self.actors[self.current_actor]
+            .fov
+            .update(x, y, &self.level);
+
+        if self.actors[self.current_actor].actor_type == ActorType::Player {
+            update_fov(
+                &mut self.render_fov,
+                self.actors[self.current_actor].x,
+                self.actors[self.current_actor].y,
+                &self.level,
+            );
+        }
+
         let mut action = self.actors[self.current_actor].get_action();
         if action.is_none() {
             return;

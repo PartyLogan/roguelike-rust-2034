@@ -12,6 +12,8 @@ pub struct Level {
     pub width: i32,
     pub height: i32,
     pub tiles: Vec<Tile>,
+    pub start_x: i32,
+    pub start_y: i32,
 }
 
 impl Level {
@@ -20,6 +22,8 @@ impl Level {
             width,
             height,
             tiles: vec![Tile::make_wall(); (width * height) as usize],
+            start_x: 0,
+            start_y: 0,
         }
     }
 
@@ -79,7 +83,7 @@ impl Level {
         }
     }
 
-    pub fn generate_basic_dungeon(&mut self) -> (i32, i32) {
+    pub fn generate_basic_dungeon(&mut self) {
         let room_max_size = 10;
         let room_min_size = 6;
         let max_rooms = 30;
@@ -114,7 +118,7 @@ impl Level {
 
             self.floor_room(new_room);
 
-            if rooms.len() == 0 {
+            if rooms.is_empty() {
                 // Player co-ords here
                 player_x = new_room.center().0;
                 player_y = new_room.center().1;
@@ -133,7 +137,8 @@ impl Level {
 
             rooms.push(new_room);
         }
-        return (player_x, player_y);
+        self.start_x = player_x;
+        self.start_y = player_y;
     }
 }
 
